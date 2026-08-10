@@ -1,0 +1,17 @@
+health-platform-web/
+health-platform-admin/
+backend/
+venv/
+health-platform-mobile.rar
+
+node_modules/
+.expo/
+.git/
+.idea/
+.vscode/
+.claude/
+.env
+
+*.rar
+*.zip
+*.log
