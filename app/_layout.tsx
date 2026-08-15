@@ -44,6 +44,10 @@ export default function RootLayout() {
                 name="services/index"
                 options={{ headerShown: false }}
               />
+               <Stack.Screen
+                name="(auth)"
+                options={{ headerShown: false }}
+              />
 
               <Stack.Screen
                 name="services/[id]"
@@ -94,7 +98,15 @@ export default function RootLayout() {
                 name="addresses/[id]"
                 options={{ headerShown: false }}
               />
-
+              <Stack.Screen
+                name="(auth)/signup"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="(auth)/login"
+                options={{ headerShown: false }}
+              />
+             
               <Stack.Screen
                 name="modal"
                 options={{
@@ -105,7 +117,7 @@ export default function RootLayout() {
 
             </Stack>
 
-            <StatusBar style="dark" />
+            <StatusBar style="light" />
           </ThemeProvider>
 
         </QueryProvider>

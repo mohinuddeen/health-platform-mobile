@@ -1,3 +1,4 @@
+//health-platform-mobile/src/components/layout/SearchBar.tsx
 import { TextInput, StyleSheet } from "react-native";
 
 export default function SearchBar() {

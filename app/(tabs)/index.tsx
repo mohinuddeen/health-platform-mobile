@@ -18,9 +18,44 @@ import PackageCard from "@/src/components/home/PackageCard";
 import { Link } from "expo-router";
 import { Colors, Spacing, Typography, Shadow } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
+import TrustStats from "@/src/components/home/TrustStats";
+import WhyChooseUs from "@/src/components/home/WhyChooseUs";
+import HowItWorks from "@/src/components/home/HowItWorks";
+import HealthTips from "@/src/components/home/HealthTips";
+import Testimonials from "@/src/components/home/Testimonials";
+import CTASection from "@/src/components/home/CTASection";
+import LoadingScreen from "@/src/components/ui/LoadingScreen";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const colors = Colors.light;
+
+function SectionHeader({
+  title,
+  href,
+}: {
+  title: string;
+  href?: string;
+}) {
+  const content = (
+    <View style={styles.sectionHeader}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <View style={styles.seeAllRow}>
+        <Text style={styles.seeAll}>See all</Text>
+        <Ionicons name="chevron-forward" size={16} color={colors.primary} />
+      </View>
+    </View>
+  );
+
+  if (!href) {
+    return <TouchableOpacity activeOpacity={0.7}>{content}</TouchableOpacity>;
+  }
+
+  return (
+    <Link href={href} asChild>
+      <TouchableOpacity activeOpacity={0.7}>{content}</TouchableOpacity>
+    </Link>
+  );
+}
 
 export default function HomeScreen() {
   const { data, isLoading, error } = useHomeData();
@@ -41,16 +76,13 @@ export default function HomeScreen() {
   }, [bannerIndex, data?.banners.length]);
 
   if (isLoading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
+  return <LoadingScreen />;
+}
 
   if (error) {
     return (
       <View style={styles.center}>
+        <Ionicons name="cloud-offline-outline" size={40} color={colors.textLight} />
         <Text style={styles.errorText}>Failed to load home data.</Text>
       </View>
     );
@@ -59,7 +91,7 @@ export default function HomeScreen() {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Header />
-      
+
       <View style={styles.content}>
         {/* Banner Carousel */}
         <ScrollView
@@ -86,75 +118,93 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        {/* Categories */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Categories</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeAll}>See All</Text>
-          </TouchableOpacity>
+         <View style={{ marginTop: Spacing.lg }}>
+          <TrustStats />
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {data?.categories.map((category) => (
-            <CategoryCard key={category.id} category={category} />
+        {/* Categories */}
+        <SectionHeader title="Categories" />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.railContent}
+        >
+          {data?.categories.map((category, index) => (
+            <CategoryCard key={category.id} category={category} index={index} />
           ))}
         </ScrollView>
 
-        {/* Featured Services */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Featured Services</Text>
-          <Link href="/services">
-            <Text style={styles.seeAll}>See All</Text>
-          </Link>
+        {/* Why Choose Us */}
+        <View style={{ marginTop: Spacing.xxl }}>
+          <WhyChooseUs />
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+
+        {/* Featured Services */}
+        <SectionHeader title="Featured Services" href="/services" />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.railContent}
+        >
           {data?.featured_services.map((service) => (
             <ServiceCard key={service.id} service={service} />
           ))}
         </ScrollView>
-
-        {/* Trending Services */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Trending Services</Text>
-          <Link href="/services">
-            <Text style={styles.seeAll}>See All</Text>
-          </Link>
+ {/* How It Works */}
+        <View style={{ marginTop: Spacing.xxl }}>
+          <HowItWorks />
         </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {/* Trending Services */}
+        <SectionHeader title="Trending Services" href="/services" />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.railContent}
+        >
           {data?.trending_services.map((service) => (
             <ServiceCard key={service.id} service={service} />
           ))}
         </ScrollView>
 
         {/* New Services */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>New Services</Text>
-          <Link href="/services">
-            <Text style={styles.seeAll}>See All</Text>
-          </Link>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <SectionHeader title="New Services" href="/services" />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.railContent}
+        >
           {data?.new_services.map((service) => (
             <ServiceCard key={service.id} service={service} />
           ))}
         </ScrollView>
 
         {/* Packages */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Packages</Text>
-          <Link href="/packages">
-            <Text style={styles.seeAll}>See All</Text>
-          </Link>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <SectionHeader title="Packages" href="/packages" />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.railContent}
+        >
           {data?.packages.map((pkg) => (
             <PackageCard key={pkg.id} pkg={pkg} />
           ))}
         </ScrollView>
+
+        {/* Health Tips */}
+        <View style={{ marginTop: Spacing.xxl }}>
+          <HealthTips />
+        </View>
+
+        {/* Testimonials */}
+        <View style={{ marginTop: Spacing.xxl }}>
+          <Testimonials />
+        </View>
+
+        {/* Final CTA */}
+        <View style={{ marginTop: Spacing.xxl }}>
+          <CTASection />
+        </View>
       </View>
     </ScrollView>
   );
@@ -167,31 +217,41 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.md,
-    paddingBottom: Spacing.xxxl,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.xxxxl,
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: Spacing.xl,
+    marginTop: Spacing.xxl,
     marginBottom: Spacing.md,
   },
   sectionTitle: {
-    fontSize: Typography.size['2xl'],
+    fontSize: Typography.size["2xl"],
     fontWeight: Typography.weight.bold,
     color: colors.text,
+    letterSpacing: -0.2,
+  },
+  seeAllRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
   },
   seeAll: {
     fontSize: Typography.size.sm,
     fontWeight: Typography.weight.semibold,
     color: colors.primary,
   },
+  railContent: {
+    paddingRight: Spacing.md,
+    paddingVertical: Spacing.xs,
+  },
   dotsContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: Spacing.sm,
-    marginBottom: Spacing.md,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   dot: {
     width: 8,
@@ -209,9 +269,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: colors.background,
+    gap: Spacing.md,
   },
   errorText: {
-    color: colors.danger,
+    color: colors.textMuted,
     fontSize: Typography.size.base,
   },
 });
