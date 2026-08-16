@@ -1,9 +1,14 @@
-// health-platform-mobile/src/components/home/CategoryCard.tsx
 import { Image } from "expo-image";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { HomeCategory } from "@/src/types/home";
-import { Colors, Spacing, Typography, Radius, Shadow } from "@/constants/theme";
+import {
+  Colors,
+  Spacing,
+  Typography,
+  Radius,
+  Shadow,
+} from "@/constants/theme";
 
 interface Props {
   category: HomeCategory;
@@ -13,19 +18,30 @@ export default function CategoryCard({ category }: Props) {
   const router = useRouter();
 
   const handlePress = () => {
-    router.push(`/services?category_id=${category.id}`);
+    router.push({
+      pathname: "/(tabs)/services",
+      params: {
+        category_id: category.id,
+      },
+    });
   };
 
   return (
     <Pressable style={styles.card} onPress={handlePress}>
       {category.image_url ? (
-        <Image source={category.image_url} style={styles.image} contentFit="cover" />
+        <Image
+          source={category.image_url}
+          style={styles.image}
+          contentFit="cover"
+        />
       ) : (
         <View style={[styles.image, styles.placeholderImage]} />
       )}
+
       <Text style={styles.title} numberOfLines={1}>
         {category.name}
       </Text>
+
       {category.description && (
         <Text style={styles.description} numberOfLines={2}>
           {category.description}

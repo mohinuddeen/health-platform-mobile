@@ -9,29 +9,62 @@ import {
   Text,
   View,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/src/components/layout/Header";
 import { usePublicServices } from "@/src/hooks/useServices";
 import { useCategories } from "@/src/hooks/useCategories";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Colors, Spacing, Typography, Radius, Shadow } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 
 const colors = Colors.light;
 
 export default function ServicesScreen() {
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
+  const { category_id } = useLocalSearchParams<{
+    category_id?: string;
+  }>();
+
+  const [selectedCategory, setSelectedCategory] = useState<
+    string | undefined
+  >(category_id);
+
+  useEffect(() => {
+    setSelectedCategory(category_id);
+  }, [category_id]);
+
   const { data, isLoading, error } = usePublicServices({
     page: 1,
     limit: 20,
     category_id: selectedCategory,
   });
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
+
+  const {
+    data: categories,
+    isLoading: categoriesLoading,
+  } = useCategories();
+
+  const handleCategoryPress = (categoryId?: string) => {
+    setSelectedCategory(categoryId);
+
+    if (categoryId) {
+      router.replace({
+        pathname: "/(tabs)/services",
+        params: {
+          category_id: categoryId,
+        },
+      });
+    } else {
+      router.replace("/(tabs)/services");
+    }
+  };
 
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator
+          size="large"
+          color={colors.primary}
+        />
       </View>
     );
   }
@@ -39,7 +72,14 @@ export default function ServicesScreen() {
   if (error) {
     return (
       <View style={styles.center}>
-        <Text style={styles.errorText}>Failed to load services.</Text>
+        <Ionicons
+          name="cloud-offline-outline"
+          size={40}
+          color={colors.textLight}
+        />
+        <Text style={styles.errorText}>
+          Failed to load services.
+        </Text>
       </View>
     );
   }
@@ -54,6 +94,7 @@ export default function ServicesScreen() {
         numColumns={2}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View>
             <Text style={styles.header}>Services</Text>
@@ -69,7 +110,7 @@ export default function ServicesScreen() {
                     styles.category,
                     !selectedCategory && styles.activeCategory,
                   ]}
-                  onPress={() => setSelectedCategory(undefined)}
+                  onPress={() => handleCategoryPress(undefined)}
                 >
                   <Text
                     style={[
@@ -86,14 +127,18 @@ export default function ServicesScreen() {
                     key={category.id}
                     style={[
                       styles.category,
-                      selectedCategory === category.id && styles.activeCategory,
+                      selectedCategory === category.id &&
+                        styles.activeCategory,
                     ]}
-                    onPress={() => setSelectedCategory(category.id)}
+                    onPress={() =>
+                      handleCategoryPress(category.id)
+                    }
                   >
                     <Text
                       style={[
                         styles.categoryText,
-                        selectedCategory === category.id && styles.activeText,
+                        selectedCategory === category.id &&
+                          styles.activeText,
                       ]}
                     >
                       {category.name}
@@ -110,26 +155,45 @@ export default function ServicesScreen() {
             onPress={() =>
               router.push({
                 pathname: "/services/[id]",
-                params: { id: item.id },
+                params: {
+                  id: item.id,
+                },
               })
             }
           >
             {item.images?.[0]?.image_url ? (
               <Image
-                source={{ uri: item.images[0].image_url }}
+                source={{
+                  uri: item.images[0].image_url,
+                }}
                 style={styles.cardImage}
               />
             ) : (
-              <View style={[styles.cardImage, styles.placeholderImage]}>
-                <Ionicons name="medkit" size={32} color={colors.primaryLight} />
+              <View
+                style={[
+                  styles.cardImage,
+                  styles.placeholderImage,
+                ]}
+              >
+                <Ionicons
+                  name="medkit"
+                  size={32}
+                  color={colors.primaryLight}
+                />
               </View>
             )}
 
-            <Text style={styles.cardTitle} numberOfLines={1}>
+            <Text
+              style={styles.cardTitle}
+              numberOfLines={1}
+            >
               {item.title}
             </Text>
 
-            <Text style={styles.cardDescription} numberOfLines={2}>
+            <Text
+              style={styles.cardDescription}
+              numberOfLines={2}
+            >
               {item.short_description}
             </Text>
 
@@ -137,19 +201,45 @@ export default function ServicesScreen() {
               <Text style={styles.cardPrice}>
                 AED {item.discount_price ?? item.price}
               </Text>
+
               {item.discount_price && (
-                <Text style={styles.cardOldPrice}>AED {item.price}</Text>
+                <Text style={styles.cardOldPrice}>
+                  AED {item.price}
+                </Text>
               )}
             </View>
 
             <View style={styles.cardRating}>
-              <Ionicons name="star" size={12} color="#F59E0B" />
+              <Ionicons
+                name="star"
+                size={12}
+                color="#F59E0B"
+              />
+
               <Text style={styles.cardRatingText}>
-                {item.rating?.toFixed(1) || "0"} ({item.review_count || 0})
+                {item.rating?.toFixed(1) || "0"} (
+                {item.review_count || 0})
               </Text>
             </View>
           </Pressable>
         )}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Ionicons
+              name="search-outline"
+              size={48}
+              color={colors.textLight}
+            />
+
+            <Text style={styles.emptyTitle}>
+              No services found
+            </Text>
+
+            <Text style={styles.emptyText}>
+              There are no services available for this category.
+            </Text>
+          </View>
+        }
       />
     </View>
   );
@@ -168,7 +258,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   header: {
-    fontSize: Typography.size['3xl'],
+    fontSize: Typography.size["3xl"],
     fontWeight: Typography.weight.bold,
     marginBottom: Spacing.md,
     color: colors.text,
@@ -255,9 +345,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: colors.background,
+    gap: Spacing.md,
   },
   errorText: {
     color: colors.danger,
     fontSize: Typography.size.base,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Spacing.xxxl,
+    width: "100%",
+  },
+  emptyTitle: {
+    marginTop: Spacing.md,
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: colors.text,
+  },
+  emptyText: {
+    marginTop: Spacing.xs,
+    fontSize: Typography.size.sm,
+    color: colors.textMuted,
+    textAlign: "center",
   },
 });
